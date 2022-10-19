@@ -11,3 +11,6 @@ inside the Conda environment.
         - Create a folder named `checkpoints`  
         - Download `https://cloud.tsinghua.edu.cn/f/da8d61d012014b12a9e4/?dl=1` inside `checkpoints` and rename it as `vox.pth.tar`  
 4. Run `app_basic.py` or `app.py`  
+    - `app_basic.py` is the basic Gradio GUI app which is more stable abnd simple.
+    - `app.py` is more experimental version which allows using webcam instead of / alongwith in both images and videos section. Also, to help in better logging of errors. 
+5. Find the local http endpoint [which will be printed on the screen], and also the remote link, which gives access as well [however the link is limited to 72 hours, and the app needs to be restarted to create a new link].
