@@ -5,10 +5,10 @@ import shutil
 import torch
 from PIL import Image
 import argparse
+import numpy as np
 from pathlib import Path
-
-
-import inspect
+from attrdict import AttrDict
+from demo import run_generator
 
 title = "Thin-Plate Spline Motion Model for Image Animation"
 
@@ -38,25 +38,27 @@ def set_example_video(example: list) -> dict:
     return gr.Video.update(value=example[0])
 
 def inference(image_source, input_image, input_webcam, vid, use_cuda):
+    opt = AttrDict()
     try:
-        if not torch.cuda.is_available():
-            use_cuda = "No"
-
-        img = input_image if image_source=="upload" else input_webcam
-
         os.makedirs("temp", exist_ok=True)
-        
-        img.save(f"{Path('temp/image.jpg')}", "JPEG")
-        print("Started")
-        print(vid)
-        run_message = subprocess.run(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if use_cuda=='No' else ''}", shell=True, capture_output=True)
-        print(run_message)
-        if run_message.returncode == 0:
-            return str(Path('./temp/result.mp4')), ""
-        else:
-            return None, run_message.stderr.decode()
+        img = input_image if image_source=="upload" else input_webcam
+        # img.save(f"{Path('temp/image.jpg')}", "JPEG")
+        opt.config = str(Path('config/vox-256.yaml'))
+        opt.checkpoint = str(Path('./checkpoints/vox.pth.tar'))
+        opt.source_image = np.asarray(img)
+        opt.driving_video = str(Path(vid))
+        opt.result_video = str(Path('./temp/result.mp4'))
+        opt.cpu = False if torch.cuda.is_available() and use_cuda else True
+
+        # Default values
+        opt.img_shape = [256,256]
+        opt.mode = 'relative'
+        opt.find_best_frame = False
+
+        run_generator(opt)
+        return str(Path('./temp/result.mp4')), ""
     except Exception as e:
-        print('./temp/result.mp4', str(e))
+        print(e)
         return None, str(e)
   
 

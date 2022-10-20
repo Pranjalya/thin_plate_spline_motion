@@ -4,8 +4,9 @@ import shutil
 import torch
 from PIL import Image
 import argparse
-import pathlib
 from pathlib import Path
+from attrdict import AttrDict
+from demo import run_generator
 
 title = "# Thin-Plate Spline Motion Model for Image Animation"
 
@@ -38,11 +39,30 @@ def inference(img,vid):
   if not os.path.exists('temp'):
     os.system('mkdir temp')
   
-  img.save(str(Path("temp/image.jpg")), "JPEG")
+  img.save(str(Path("temp/image.jpg")), "JPEG")git checkout 
 #   os.system(f"python demo.py --config config/vox-256.yaml --checkpoint ./checkpoints/vox.pth.tar --source_image 'temp/image.jpg' --driving_video {vid} --result_video './temp/result.mp4' --cpu")
   os.system(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if not torch.cuda.is_available() else ''}")
   return str(Path('./temp/result.mp4'))
-  
+
+def inference(image_source, input_image, input_webcam, vid, use_cuda):
+    opt = AttrDict()
+    os.makedirs("temp", exist_ok=True)
+    img = input_image if image_source=="upload" else input_webcam
+    # img.save(f"{Path('temp/image.jpg')}", "JPEG")
+    opt.config = str(Path('config/vox-256.yaml'))
+    opt.checkpoint = str(Path('./checkpoints/vox.pth.tar'))
+    opt.source_image = np.asarray(img)
+    opt.driving_video = str(Path(vid))
+    opt.result_video = str(Path('./temp/result.mp4'))
+    opt.cpu = False if torch.cuda.is_available() and use_cuda else True
+
+    # Default values
+    opt.img_shape = [256,256]
+    opt.mode = 'relative'
+    opt.find_best_frame = False
+
+    run_generator(opt)
+    return str(Path('./temp/result.mp4'))
 
 
 def main():
@@ -61,7 +81,7 @@ def main():
                                                type="pil")
                         
             with gr.Row():
-                paths = sorted(pathlib.Path('assets').glob('*.png'))
+                paths = sorted(Path('assets').glob('*.png'))
                 example_images = gr.Dataset(components=[input_image],
                                             samples=[[path.as_posix()]
                                                      for path in paths])
@@ -77,7 +97,7 @@ def main():
                                                format="mp4")
 
             with gr.Row():
-                paths = sorted(pathlib.Path('assets').glob('*.mp4'))
+                paths = sorted(Path('assets').glob('*.mp4'))
                 example_video = gr.Dataset(components=[driving_video],
                                             samples=[[path.as_posix()]
                                                      for path in paths])
