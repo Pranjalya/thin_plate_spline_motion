@@ -51,8 +51,8 @@ def inference(image_source, input_image, input_webcam, vid, use_cuda):
         print(vid)
         run_message = subprocess.run(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if use_cuda=='No' else ''}", shell=True, capture_output=True)
         print(run_message)
-        if run_message.stderr.decode() == "":
-            return './temp/result.mp4', run_message.stderr.decode()
+        if run_message.returncode == 0:
+            return str(Path('./temp/result.mp4')), ""
         else:
             return None, run_message.stderr.decode()
     except Exception as e:
