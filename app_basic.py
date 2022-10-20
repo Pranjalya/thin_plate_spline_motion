@@ -5,6 +5,7 @@ import torch
 from PIL import Image
 import argparse
 import pathlib
+from pathlib import Path
 
 title = "# Thin-Plate Spline Motion Model for Image Animation"
 
@@ -38,7 +39,8 @@ def inference(img,vid):
     os.system('mkdir temp')
   
   img.save("temp/image.jpg", "JPEG")
-  os.system(f"python demo.py --config config/vox-256.yaml --checkpoint ./checkpoints/vox.pth.tar --source_image 'temp/image.jpg' --driving_video {vid} --result_video './temp/result.mp4' --cpu")
+#   os.system(f"python demo.py --config config/vox-256.yaml --checkpoint ./checkpoints/vox.pth.tar --source_image 'temp/image.jpg' --driving_video {vid} --result_video './temp/result.mp4' --cpu")
+  os.system(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if use_cuda=='No' else ''}")
   return './temp/result.mp4'
   
 
