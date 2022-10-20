@@ -4,6 +4,7 @@ import shutil
 import torch
 from PIL import Image
 import argparse
+import numpy as np
 from pathlib import Path
 from attrdict import AttrDict
 from demo import run_generator
@@ -36,25 +37,15 @@ def set_example_video(example: list) -> dict:
     return gr.Video.update(value=example[0])
 
 def inference(img,vid):
-  if not os.path.exists('temp'):
-    os.system('mkdir temp')
-  
-  img.save(str(Path("temp/image.jpg")), "JPEG")git checkout 
-#   os.system(f"python demo.py --config config/vox-256.yaml --checkpoint ./checkpoints/vox.pth.tar --source_image 'temp/image.jpg' --driving_video {vid} --result_video './temp/result.mp4' --cpu")
-  os.system(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if not torch.cuda.is_available() else ''}")
-  return str(Path('./temp/result.mp4'))
-
-def inference(image_source, input_image, input_webcam, vid, use_cuda):
     opt = AttrDict()
     os.makedirs("temp", exist_ok=True)
-    img = input_image if image_source=="upload" else input_webcam
     # img.save(f"{Path('temp/image.jpg')}", "JPEG")
     opt.config = str(Path('config/vox-256.yaml'))
     opt.checkpoint = str(Path('./checkpoints/vox.pth.tar'))
     opt.source_image = np.asarray(img)
     opt.driving_video = str(Path(vid))
     opt.result_video = str(Path('./temp/result.mp4'))
-    opt.cpu = False if torch.cuda.is_available() and use_cuda else True
+    opt.cpu = True
 
     # Default values
     opt.img_shape = [256,256]

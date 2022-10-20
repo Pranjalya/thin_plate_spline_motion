@@ -56,6 +56,7 @@ def inference(image_source, input_image, input_webcam, vid, use_cuda):
         opt.find_best_frame = False
 
         run_generator(opt)
+        print("Done.")
         return str(Path('./temp/result.mp4')), ""
     except Exception as e:
         print(e)
