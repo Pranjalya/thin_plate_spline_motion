@@ -5,7 +5,8 @@ import shutil
 import torch
 from PIL import Image
 import argparse
-import pathlib
+from pathlib import Path
+
 
 import inspect
 
@@ -45,10 +46,10 @@ def inference(image_source, input_image, input_webcam, vid, use_cuda):
 
         os.makedirs("temp", exist_ok=True)
         
-        img.save("temp/image.jpg", "JPEG")
+        img.save(f"{Path('temp/image.jpg')}", "JPEG")
         print("Started")
         print(vid)
-        run_message = subprocess.run(f"python demo.py --config config/vox-256.yaml --checkpoint ./checkpoints/vox.pth.tar --source_image 'temp/image.jpg' --driving_video {vid} --result_video './temp/result.mp4' {'--cpu' if use_cuda=='No' else ''}", shell=True, capture_output=True)
+        run_message = subprocess.run(f"python3 demo.py --config {Path('config/vox-256.yaml')} --checkpoint {Path('./checkpoints/vox.pth.tar')} --source_image {Path('temp/image.jpg')} --driving_video {Path(vid)} --result_video {Path('./temp/result.mp4')} {'--cpu' if use_cuda=='No' else ''}", shell=True, capture_output=True)
         print(run_message)
         if run_message.stderr.decode() == "":
             return './temp/result.mp4', run_message.stderr.decode()
@@ -97,7 +98,7 @@ def main():
                         # image_source.change(fn=toggle, inputs=image_source, outputs=input_webcam)
                         
             with gr.Row():
-                paths = sorted(pathlib.Path('assets').glob('*.png'))
+                paths = sorted(Path('assets').glob('*.png'))
                 example_images = gr.Dataset(components=[input_image],
                                             samples=[[path.as_posix()]
                                                      for path in paths])
@@ -115,7 +116,7 @@ def main():
                         video_source.change(fn=lambda value: driving_video.update(source=value), inputs=video_source, outputs=driving_video)
 
             with gr.Row():
-                paths = sorted(pathlib.Path('assets').glob('*.mp4'))
+                paths = sorted(Path('assets').glob('*.mp4'))
                 example_video = gr.Dataset(components=[driving_video],
                                             samples=[[path.as_posix()]
                                                      for path in paths])
